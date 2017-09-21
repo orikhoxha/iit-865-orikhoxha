@@ -15,3 +15,5 @@ console.log(f.__proto__.__proto__ === Object.prototype);
 
 
 console.log("Orik".repeat(3));
+
+

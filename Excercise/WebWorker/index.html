@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+
+
+<div id="data"></div>
+
+<script type="text/javascript">
+	var div = document.getElementById("data");
+	var worker = new Worker('worker.js');
+
+	var data;
+
+	worker.addEventListener("message",function(e){
+		
+		data = e.data;
+		console.log(data);
+		parseData(data);
+
+
+	},false);
+	
+	worker.postMessage("message"); 
+
+	function parseData(arr){
+		arr.forEach(function(elem){
+			var gender = elem.gender;
+			var name = elem.name;
+			var p = document.createElement("p");
+			p.appendChild(document.createTextNode(gender + " "));
+			p.appendChild(document.createTextNode(name));
+			console.log(elem.gender + " " + elem.name);
+			div.appendChild(p);
+		})
+	}
+</script>
+</body>
+</htmda

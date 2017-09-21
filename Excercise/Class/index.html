@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+
+
+
+<div id="data">
+
+</div>
+
+
+<script type="text/javascript">
+	
+
+	var link = "http://libertyville.rice.iit.edu/scripts/data.php";
+
+
+	var req = new XMLHttpRequest();
+	req.onreadystatechange = function(){
+			if(req.readyState === 4 && req.status === 200){
+				var data = JSON.parse(req.responseText);
+				if(Array.isArray(data)){
+					parseData(data);	
+				}
+				console.log(data);
+				
+			}
+	}
+
+	req.open("GET",link,true);
+	req.send();
+
+	var div = document.getElementById("data");
+
+	function parseData(arr){
+
+		arr.forEach(function(elem){
+			var gender = elem.gender;
+			var name = elem.name;
+			var p = document.createElement("p");
+			p.appendChild(document.createTextNode(gender + " "));
+			p.appendChild(document.createTextNode(name));
+			console.log(elem.gender + " " + elem.name);
+			div.appendChild(p);
+		})
+	}
+
+
+
+</script>
+</body>
+</htm
