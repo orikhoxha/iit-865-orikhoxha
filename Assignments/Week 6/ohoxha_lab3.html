@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>JSON- Data table</title>
+	<style type="text/css">
+	
+		body{
+			font-family: sans-serif;
+		}
+
+		header, main{
+			margin: auto;
+			max-width:850px;
+		}
+
+		header{
+			text-align: center;
+			margin-bottom: 20px;
+		}
+
+
+		.buttonStyle, #search{
+			height:30px;
+			width:100px;
+			margin:10px;
+			border-radius: 5px;
+		}
+
+
+		#search{
+			float:right;
+		}
+
+		main #table{
+			width:850px;
+		}
+
+		#table{
+			border-collapse: collapse;
+		}
+
+		#table th{
+			text-align: left;
+			background:#CCCCCC;
+		}
+
+
+		#table th,td{
+			padding:15px 5px 15px 5px;
+			border: 1px solid black;
+		}
+
+		#table tr:nth-child(even){
+			background-color:#ECECEC;
+		}
+
+		
+
+		.active{
+			background:#dff0d8;
+		}
+
+		.inactive{
+			background:#f2dede;
+		}
+
+		.hide{
+  			display: none;
+		}
+
+
+	</style>
+
+</head>
+<body>
+
+
+	<header>
+		<h1>ITMD - 565 - Lab 3</h1>
+		<h2>Orik Hoxha - ohoxha@hawk.iit.edu</h2>
+		<button id="loadButton" class="buttonStyle">Load Data</button>
+		<button id="resetButton" class="buttonStyle">Reset</button>
+		<input type="text" id="search" placeholder="Search keyword">
+		
+	</header>
+
+	<main>
+		<table id="table">
+		    <thead>
+		      <tr>
+		        <th>ID</th>
+		        <th>First Name</th>
+		        <th>Last Name</th>
+		        <th>Title</th>
+		        <th>Email</th>
+		        <th>Gender</th>
+		        <th>Active</th>
+		      </tr>
+		    </thead>
+		    <tbody id="tbody">
+		    </tbody>
+		 </table>
+		</div>
+	</main>
+
+	<script type="text/javascript">
+		
+
+		var REQUEST_LINK = "http://libertyville.rice.iit.edu/scripts/4565_lab3.php";
+		var loadButton = document.getElementById("loadButton");
+		var resetButton = document.getElementById("resetButton");
+		var search = document.getElementById("search");
+		search.disabled = true;
+		var rows;
+		resetButton.disabled = true;
+		var users = [];
+
+		var tableBody = document.getElementById("tbody");
+
+		loadButton.addEventListener("click",requestData);
+		resetButton.addEventListener("click",clearTable);
+
+		var User = function(id,first_name,last_name,title,email,gender,active){
+			this.id = id;
+			this.first_name = first_name;
+			this.last_name= last_name;
+			this.title = title;
+			this.email = email;
+			this.gender = gender;
+			this.active = active;
+		}
+
+
+		function requestData(){
+			var myRequest = new XMLHttpRequest();
+			myRequest.onreadystatechange= function(){
+				if(myRequest.readyState === 4 && myRequest.status === 200){
+					console.log("true");
+					var data = JSON.parse(myRequest.responseText);
+					parseData(data);
+				}
+			}
+			myRequest.open("GET",REQUEST_LINK,true);
+			myRequest.send();
+
+		}
+
+
+		function parseData(arr){
+			var arrLength = arr.length;
+			for(var i = 0; i < arrLength;++i){
+				var user = arr[i];
+				users.push(new User(user.id, user.first_name, user.last_name, user.title,
+									user.email,user.gender,user.active));
+			}
+
+			populateTable(users);
+
+		}
+
+		function populateTable(arr){
+			arr.forEach(function(user){
+				var row =  document.createElement("tr");
+				for(prop in user){
+					if(user.hasOwnProperty(prop)){
+						var td = document.createElement("td");
+						var tdText = document.createTextNode(user[prop]);
+						td.appendChild(tdText);
+						if(user[prop] == true && prop != "id"){
+							td.className += "active";
+						}else if(user[prop] == false){
+							td.className += "inactive";
+						}
+						row.appendChild(td);
+					}
+				}
+				tableBody.appendChild(row);
+			});	
+
+			rows = document.querySelectorAll("tbody > tr");
+
+			loadButton.disabled = true;
+			resetButton.disabled = false;
+			search.disabled = false;
+		}
+
+
+		function clearTable(){
+
+			while(tableBody.hasChildNodes()){
+				tableBody.removeChild(tableBody.lastChild);
+			}
+
+			users = [];
+
+			resetButton.disabled = true;
+			loadButton.disabled = false;
+			search.disabled = true;
+		}
+
+
+		/* Additional Function - Search Table*/
+
+		search.addEventListener("keyup",function(event){
+
+            var backPressed = false;
+            var empty = false;
+
+            if(event.keyCode == 8){
+              backPressed = true;
+
+            }
+            if(search.value == ""){
+              empty = true;
+            }
+
+            var i;
+            for(i = 0; i < rows.length; i++){
+              var row = rows[i];
+              var cols = row.querySelectorAll("td");
+              var j = 0;
+              var found = false;
+              for(j = 0; j < cols.length; j++){
+                col = cols[j];
+                var val= col.innerHTML;
+                if(val.indexOf(search.value) != -1){
+                  found = true;
+                }
+              }
+
+              if(!found && !backPressed){
+                row.setAttribute("class","hide");
+              }
+              if(backPressed && !empty){
+                if(!found){
+                  row.setAttribute("class","hide");
+                }else if(found){
+                  row.removeAttribute("class");
+                }
+              }
+              if(empty){
+                row.removeAttribute("class");
+              }
+            }
+
+          },false);
+
+
+	</script>
+	</body>
+</html>
